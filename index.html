@@ -711,20 +711,22 @@ async function doReframe() {
 Rules: Never dramatise or over-validate. No therapy-speak. No "it sounds like", "I hear you", "that's valid". No advice, no silver linings, no motivational framing. Keep it short: 2-3 sentences maximum. Plain prose only, no lists.`;
 
   try {
-    const url = 'https://text.pollinations.ai/' + encodeURIComponent(txt)
-      + '?system=' + encodeURIComponent(system)
-      + '&model=openai&private=true';
-
-    const res = await fetch(url);
+    // Pollinations OpenAI-compatible endpoint — free, no key, no account
+    const res = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'openai',
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: txt }
+        ],
+        private: true
+      })
+    });
     if (!res.ok) throw new Error('bad response');
-    let out = (await res.text()).trim();
-
-    // Strip Pollinations banner: it appears before the actual response, separated by a blank line
-    const bannerMarkers = ['pollinations.ai', 'deprecated', 'migrate to'];
-    if (bannerMarkers.some(w => out.includes(w))) {
-      const splitIdx = out.indexOf('\n\n');
-      if (splitIdx !== -1) out = out.slice(splitIdx).trim();
-    }
+    const data = await res.json();
+    const out = data.choices?.[0]?.message?.content?.trim();
 
     document.getElementById('rf-text').textContent = out || "Couldn't reach the server just now.";
     resp.classList.add('visible');
