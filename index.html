@@ -381,6 +381,7 @@ textarea.reflection-area::placeholder { color: var(--text-xfaint); font-style: i
   .welcome-wordmark { font-size: 52px; }
 }
 </style>
+<script src="https://js.puter.com/v2/"></script>
 </head>
 <body>
 <div class="app">
@@ -708,15 +709,11 @@ async function doReframe() {
   const system = `You are a neutral, grounded assistant. When someone shares what's on their mind, rephrase what they said in plain, calm language — no drama, no romanticising, just a clearer and slightly more neutral version of their words. Rules: Never dramatise or over-validate. No therapy-speak. No "it sounds like", "I hear you", "that's valid". No advice, no silver linings, no motivational framing. Keep it short: 2-3 sentences maximum. Plain prose only, no lists.`;
 
   try {
-    const prompt = encodeURIComponent(`${system}\n\nUser: ${txt}\n\nReframe:`);
-    const res = await fetch(`https://text.pollinations.ai/${prompt}`, {
-      method: 'GET',
-      headers: { 'Accept': 'text/plain' }
-    });
-
-    if (!res.ok) throw new Error('bad response');
-    const out = (await res.text()).trim();
-
+    const response = await puter.ai.chat(
+      `${system}\n\nUser: ${txt}`,
+      { model: 'gpt-4o-mini' }
+    );
+    const out = response?.message?.content?.[0]?.text?.trim();
     document.getElementById('rf-text').textContent = out || "Couldn't reach the server just now.";
     resp.classList.add('visible');
   } catch (e) {
