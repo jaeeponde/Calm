@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #eeebe5;
+  --white: #ffffff;
+  --sage: #6b8070;
+  --sage-light: #8fa090;
+  --sage-pale: #dde5e0;
+  --stone: #9e9992;
+  --stone-light: #cac6c0;
+  --stone-pale: #e6e3de;
+  --text: #2e2c28;
+  --text-soft: #4a4844;      /* darkened from #706c66 */
+  --text-faint: #625f5a;     /* darkened from #a8a49e */
+  --text-xfaint: #857f79;    /* darkened from #c0bbb4 */
+  --radius: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 100px;
+  --shadow: 0 2px 20px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 40px rgba(0,0,0,0.08);
+}
+
+html, body {
+  min-height: 100%; height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+.app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ====== NAV ====== */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Lora', serif; font-size: 17px; font-weight: 400; color: var(--text);
+  user-select: none; cursor: pointer;
+}
+.nav-logo:hover { opacity: 0.8; }
+.nav-logo-icon {
+  width: 30px; height: 30px; background: var(--stone-pale);
+  border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 14px;
+}
+.nav-tabs { display: flex; gap: 2px; align-items: center; }
+.nav-tab {
+  padding: 7px 16px; border-radius: var(--radius-pill);
+  font-size: 13px; font-weight: 400; color: var(--text-faint);
+  cursor: pointer; border: none; background: none;
+  transition: background 0.2s, color 0.2s;
+  font-family: 'DM Sans', sans-serif; letter-spacing: 0.01em;
+}
+.nav-tab:hover { color: var(--text-soft); }
+.nav-tab.active { background: var(--sage); color: white; }
+.nav-name {
+  font-size: 13px; color: var(--text-faint); font-weight: 300;
+  font-style: italic; font-family: 'Lora', serif;
+}
+
+/* ====== SCREENS ====== */
+.screen { display: none; flex: 1; }
+.screen.active { display: flex; }
+
+/* ====== WELCOME ====== */
+#screen-welcome {
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 24px; min-height: calc(100vh - 67px);
+}
+.welcome-inner {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; max-width: 500px; width: 100%;
+}
+.welcome-wordmark {
+  font-family: 'Lora', serif; font-size: clamp(48px, 8vw, 80px);
+  font-weight: 400; color: var(--text); letter-spacing: -0.02em;
+  line-height: 1; margin-bottom: 20px;
+  animation: fade-up 0.7s ease forwards;
+}
+.welcome-tagline {
+  font-size: 15px; color: var(--text-faint); font-weight: 300;
+  line-height: 1.7; margin-bottom: 52px; max-width: 340px;
+  animation: fade-up 0.7s 0.1s ease both;
+}
+.name-row {
+  display: flex; align-items: center; gap: 0;
+  width: 100%; max-width: 380px; margin-bottom: 20px;
+  background: var(--white); border-radius: var(--radius-pill);
+  box-shadow: var(--shadow); overflow: hidden;
+  animation: fade-up 0.7s 0.2s ease both;
+  border: 1.5px solid transparent; transition: border-color 0.2s;
+}
+.name-row:focus-within { border-color: var(--sage-pale); }
+.name-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'DM Sans', sans-serif; font-size: 15px;
+  color: var(--text); padding: 14px 22px; font-weight: 300;
+}
+.name-input::placeholder { color: var(--text-xfaint); }
+.name-go {
+  padding: 10px 20px; margin: 5px; border-radius: var(--radius-pill);
+  background: var(--sage); color: white; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400;
+  transition: background 0.2s; white-space: nowrap; flex-shrink: 0;
+}
+.name-go:hover { background: #5d7264; }
+.welcome-skip {
+  font-size: 12px; color: var(--text-xfaint); background: none;
+  border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: color 0.2s; animation: fade-up 0.7s 0.3s ease both;
+}
+.welcome-skip:hover { color: var(--text-faint); }
+.welcome-deco { position: absolute; border-radius: 50%; pointer-events: none; }
+.deco-1 {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(143,160,144,0.12) 0%, transparent 70%);
+  top: 10%; left: -80px;
+}
+.deco-2 {
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(196,168,130,0.10) 0%, transparent 70%);
+  bottom: 15%; right: -60px;
+}
+
+/* ====== CHECK-IN ====== */
+#screen-checkin {
+  flex-direction: column; align-items: center;
+  justify-content: center; padding: 60px 24px;
+}
+.ci-eyebrow {
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: 20px; font-weight: 400;
+}
+.ci-heading {
+  font-family: 'Lora', serif; font-size: clamp(30px, 4.5vw, 50px);
+  font-weight: 400; color: var(--text);
+  margin-bottom: 60px; text-align: center; line-height: 1.25; max-width: 620px;
+}
+.ci-value-area {
+  text-align: center; margin-bottom: 36px; min-height: 96px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.ci-number {
+  font-family: 'Lora', serif; font-size: 88px; font-weight: 400;
+  color: var(--sage); line-height: 1; display: block; transition: color 0.5s ease;
+}
+.ci-feeling {
+  display: block; margin-top: 8px;
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-faint); font-weight: 400; min-height: 16px;
+}
+.slider-wrap { width: 100%; max-width: 580px; }
+.slider-track {
+  position: relative; height: 5px; border-radius: 3px;
+  background: var(--stone-light); margin-bottom: 12px;
+}
+.slider-fill {
+  position: absolute; left: 0; top: 0; height: 100%;
+  border-radius: 3px; background: var(--sage);
+  pointer-events: none; transition: width 0.06s;
+}
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  position: absolute; top: 50%; left: 0; transform: translateY(-50%);
+  width: 100%; height: 100%; background: transparent; cursor: pointer; margin: 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--white); border: 1.5px solid var(--stone-light);
+  box-shadow: 0 1px 10px rgba(0,0,0,0.14); margin-top: -9px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.12s;
+}
+input[type=range]::-webkit-slider-thumb:hover { border-color: var(--sage-light); transform: scale(1.12); }
+input[type=range]:focus { outline: none; }
+input[type=range]:focus::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(107,128,112,0.16); }
+.slider-labels {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--text-faint); font-weight: 300;
+}
+.ci-submit {
+  margin-top: 56px; padding: 14px 48px; border-radius: var(--radius-pill);
+  background: var(--sage); color: white; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
+  transition: background 0.2s, transform 0.14s, box-shadow 0.2s;
+  box-shadow: 0 2px 18px rgba(107,128,112,0.28);
+}
+.ci-submit:hover { background: #5d7264; transform: translateY(-1px); box-shadow: 0 4px 28px rgba(107,128,112,0.36); }
+.ci-submit:active { transform: translateY(0); }
+
+/* ====== BACK LINK ====== */
+.back-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-faint); cursor: pointer;
+  border: none; background: none; font-family: 'DM Sans', sans-serif;
+  margin-bottom: 44px; padding: 0; transition: color 0.2s;
+  letter-spacing: 0.01em; align-self: flex-start;
+  max-width: 700px; width: 100%;
+}
+.back-link:hover { color: var(--text-soft); }
+
+/* ====== RESPONSE LAYOUT ====== */
+.response-layout { flex-direction: column; align-items: center; padding: 56px 24px 80px; }
+.response-italic {
+  font-family: 'Lora', serif; font-style: italic; font-size: 14px;
+  color: var(--text-faint); margin-bottom: 12px;
+  align-self: flex-start; max-width: 700px; width: 100%;
+}
+.response-heading {
+  font-family: 'Lora', serif; font-size: clamp(26px, 3.8vw, 40px);
+  font-weight: 400; color: var(--text);
+  margin-bottom: 44px; max-width: 700px; width: 100%; line-height: 1.25;
+}
+
+/* ====== OPTION CARDS ====== */
+.option-cards { display: flex; flex-direction: column; gap: 12px; max-width: 700px; width: 100%; }
+.option-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 26px 30px; cursor: pointer;
+  border: 1.5px solid transparent; box-shadow: var(--shadow);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.14s;
+}
+.option-card:hover { border-color: var(--sage-pale); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.option-card-icon { display: block; margin-bottom: 12px; }
+.option-card-icon svg { width: 20px; height: 20px; stroke: var(--stone); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.option-card h3 { font-family: 'Lora', serif; font-size: 18px; font-weight: 400; color: var(--text); margin-bottom: 5px; }
+.option-card p { font-size: 13px; color: var(--text-faint); font-weight: 300; line-height: 1.6; }
+
+/* ====== HIGH (7-10) ====== */
+#screen-high { flex-direction: column; align-items: center; justify-content: center; padding: 64px 24px; }
+.action-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 52px 48px; max-width: 460px; width: 100%;
+  text-align: center; box-shadow: var(--shadow-lg);
+}
+.action-emoji { font-size: 44px; display: block; margin-bottom: 22px; }
+.action-title { font-family: 'Lora', serif; font-size: 24px; font-weight: 400; color: var(--text); margin-bottom: 10px; }
+.action-body { font-size: 14px; color: var(--text-soft); line-height: 1.75; font-weight: 300; max-width: 300px; margin: 0 auto 36px; }
+.action-done {
+  padding: 12px 40px; border-radius: var(--radius-pill);
+  background: var(--sage-pale); color: var(--sage); border: none;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  transition: background 0.2s, color 0.2s;
+}
+.action-done:hover { background: var(--sage); color: white; }
+.action-another {
+  display: block; margin-top: 18px; font-size: 12px;
+  color: var(--text-xfaint); cursor: pointer; background: none;
+  border: none; font-family: 'DM Sans', sans-serif; transition: color 0.2s;
+}
+.action-another:hover { color: var(--text-faint); }
+.high-back-btn {
+  margin-top: 36px; font-size: 12px; color: var(--text-faint);
+  cursor: pointer; background: none; border: none;
+  font-family: 'DM Sans', sans-serif; transition: color 0.2s;
+}
+.high-back-btn:hover { color: var(--text-soft); }
+
+/* ====== BRAIN DUMP ====== */
+#screen-braindump { flex-direction: column; align-items: center; padding: 56px 24px 80px; }
+.dump-card { background: var(--white); border-radius: var(--radius-lg); padding: 36px 40px; max-width: 700px; width: 100%; box-shadow: var(--shadow); }
+.dump-label { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 20px; display: block; }
+textarea.dump-area {
+  width: 100%; border: none; outline: none; resize: none;
+  font-family: 'Lora', serif; font-size: 17px; font-weight: 400;
+  color: var(--text); line-height: 1.8; background: transparent; min-height: 240px;
+}
+textarea.dump-area::placeholder { color: var(--text-xfaint); font-style: italic; }
+.dump-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--stone-pale); display: flex; justify-content: space-between; align-items: center; }
+.dump-hint { font-size: 12px; color: var(--text-xfaint); font-style: italic; font-family: 'Lora', serif; }
+.dump-clear { font-size: 12px; color: var(--text-faint); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s; padding: 4px 8px; }
+.dump-clear:hover { color: var(--text-soft); }
+
+/* ====== REFRAME ====== */
+#screen-reframe { flex-direction: column; align-items: center; padding: 56px 24px 80px; }
+.reframe-card { background: var(--white); border-radius: var(--radius-lg); padding: 36px 40px; max-width: 700px; width: 100%; box-shadow: var(--shadow); }
+.reframe-label { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); font-weight: 400; margin-bottom: 16px; display: block; }
+textarea.reframe-area {
+  width: 100%; border: none; outline: none; resize: none;
+  font-family: 'Lora', serif; font-size: 16px; font-weight: 400;
+  color: var(--text); line-height: 1.8; background: transparent; min-height: 130px;
+  border-bottom: 1px solid var(--stone-pale); padding-bottom: 20px; margin-bottom: 20px;
+}
+textarea.reframe-area::placeholder { color: var(--text-xfaint); font-style: italic; }
+.reframe-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 28px; border-radius: var(--radius-pill);
+  background: var(--sage); color: white; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400;
+  transition: background 0.2s, transform 0.14s;
+  box-shadow: 0 2px 14px rgba(107,128,112,0.26);
+}
+.reframe-btn:hover { background: #5d7264; transform: translateY(-1px); }
+.reframe-btn:disabled { background: var(--stone-light); box-shadow: none; transform: none; cursor: not-allowed; }
+.reframe-btn svg { width: 13px; height: 13px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.reframe-loading { display: none; align-items: center; gap: 10px; padding: 24px 0 0; }
+.reframe-loading.visible { display: flex; }
+.dots { display: flex; gap: 5px; }
+.dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--stone-light); display: block; animation: dot 1.4s ease-in-out infinite; }
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.85); } 40% { opacity: 1; transform: scale(1); } }
+.dots-label { font-size: 13px; color: var(--text-faint); font-style: italic; font-family: 'Lora', serif; }
+.reframe-response { display: none; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--stone-pale); }
+.reframe-response.visible { display: block; }
+.reframe-response-eyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-xfaint); margin-bottom: 14px; display: block; }
+.reframe-response-text { font-family: 'Lora', serif; font-size: 16.5px; font-weight: 400; color: var(--text); line-height: 1.85; font-style: italic; }
+.reframe-again { margin-top: 20px; font-size: 12px; color: var(--text-faint); cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; transition: color 0.2s; padding: 0; }
+.reframe-again:hover { color: var(--text-soft); }
+
+/* ====== LOW (1-3) ====== */
+#screen-low { flex-direction: column; align-items: center; padding: 56px 24px 80px; }
+.reflection-card { background: var(--white); border-radius: var(--radius-lg); padding: 26px 30px; max-width: 700px; width: 100%; box-shadow: var(--shadow); margin-top: 12px; }
+.reflection-meta { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-xfaint); margin-bottom: 14px; display: block; }
+textarea.reflection-area { width: 100%; border: none; outline: none; resize: none; font-family: 'Lora', serif; font-size: 15px; color: var(--text); background: transparent; line-height: 1.8; min-height: 72px; }
+textarea.reflection-area::placeholder { color: var(--text-xfaint); font-style: italic; }
+
+/* ====== TASKS ====== */
+#screen-tasks { flex-direction: column; align-items: center; padding: 56px 24px 80px; }
+.tasks-card { background: var(--white); border-radius: var(--radius-lg); padding: 36px 40px; max-width: 700px; width: 100%; box-shadow: var(--shadow); }
+.tasks-eyebrow { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; display: block; }
+.tasks-heading { font-family: 'Lora', serif; font-size: 22px; font-weight: 400; color: var(--text); margin-bottom: 32px; }
+.bucket-label { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 10px; display: block; font-weight: 400; }
+.task-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.task-input { flex: 1; border: none; border-bottom: 1px solid var(--stone-pale); outline: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); padding: 7px 0; background: transparent; transition: border-color 0.2s; font-weight: 300; }
+.task-input:focus { border-color: var(--sage-light); }
+.task-input::placeholder { color: var(--text-xfaint); }
+.task-add-btn { width: 26px; height: 26px; border-radius: 50%; background: var(--stone-pale); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: 19px; line-height: 1; flex-shrink: 0; transition: background 0.2s, color 0.2s; }
+.task-add-btn:hover { background: var(--sage-pale); color: var(--sage); }
+.task-list { list-style: none; margin-bottom: 4px; }
+.task-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.task-check { width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(--stone-light); background: none; flex-shrink: 0; cursor: pointer; transition: border-color 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; }
+.task-check:hover { border-color: var(--sage); }
+.task-check.done { background: var(--sage-pale); border-color: var(--sage); }
+.task-check.done::after { content:''; width:6px; height:6px; border-radius:50%; background:var(--sage); display:block; }
+.task-lbl { font-size: 14px; color: var(--text-soft); font-weight: 300; }
+.task-lbl.done { text-decoration: line-through; color: var(--text-xfaint); }
+.task-divider { border: none; border-top: 1px solid var(--stone-pale); margin: 22px 0; }
+.tasks-note { margin-top: 24px; font-size: 12px; color: var(--text-xfaint); font-style: italic; font-family: 'Lora', serif; }
+
+/* ====== BREATHE MODAL ====== */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(238,235,229,0.92); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; flex-direction: column; }
+.modal-overlay.open { display: flex; }
+.modal-close { position: absolute; top: 28px; right: 36px; background: none; border: none; cursor: pointer; color: var(--text-faint); font-size: 24px; line-height: 1; transition: color 0.2s; }
+.modal-close:hover { color: var(--text-soft); }
+.breathe-outer { width: 240px; height: 240px; border-radius: 50%; background: var(--sage-pale); display: flex; align-items: center; justify-content: center; }
+.breathe-inner { width: 176px; height: 176px; border-radius: 50%; background: var(--stone-pale); display: flex; align-items: center; justify-content: center; text-align: center; }
+.breathe-word { font-family: 'Lora', serif; font-size: 18px; font-weight: 400; color: var(--text); }
+.breathe-caption { margin-top: 40px; font-family: 'Lora', serif; font-style: italic; font-size: 14px; color: var(--text-faint); }
+@keyframes breathe { 0% { transform: scale(1); } 35% { transform: scale(1.22); } 65% { transform: scale(1.22); } 100% { transform: scale(1); } }
+.breathe-outer.go { animation: breathe 8s ease-in-out infinite; }
+
+/* ====== ANIMATIONS ====== */
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.fade { animation: fade-up 0.45s ease forwards; }
+
+@media (max-width: 640px) {
+  nav { padding: 14px 20px; }
+  .nav-tabs { gap: 0; }
+  .nav-tab { padding: 6px 10px; font-size: 12px; }
+  .dump-card, .reframe-card, .tasks-card, .action-card, .reflection-card { padding: 24px 20px; }
+  .welcome-wordmark { font-size: 52px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- NAV -->
+<nav id="main-nav" style="display:none;">
+  <div class="nav-logo" onclick="navTo('checkin')">
+    <div class="nav-logo-icon">🌿</div>
+    Calm
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-nav="checkin" onclick="navTo('checkin')">Check-In</button>
+    <button class="nav-tab" data-nav="braindump" onclick="navTo('braindump')">Brain Dump</button>
+    <button class="nav-tab" data-nav="tasks" onclick="navTo('tasks')">Task Buffer</button>
+  </div>
+  <span class="nav-name" id="nav-name-display"></span>
+</nav>
+
+<!-- WELCOME -->
+<section id="screen-welcome" class="screen active">
+  <div class="welcome-deco deco-1"></div>
+  <div class="welcome-deco deco-2"></div>
+  <div class="welcome-inner">
+    <h1 class="welcome-wordmark">calm.</h1>
+    <p class="welcome-tagline">A quiet place to check in with yourself. No pressure, no tracking — just a small moment to notice how you're doing.</p>
+    <div class="name-row">
+      <input class="name-input" id="name-input" type="text" placeholder="What's your name?" maxlength="40" onkeydown="nameKeydown(event)">
+      <button class="name-go" onclick="startApp()">Check in →</button>
+    </div>
+    <button class="welcome-skip" onclick="startApp(true)">skip for now</button>
+  </div>
+</section>
+
+<!-- CHECK-IN -->
+<section id="screen-checkin" class="screen">
+  <p class="ci-eyebrow">right now</p>
+  <h1 class="ci-heading" id="ci-heading">How are you feeling?</h1>
+  <div class="ci-value-area">
+    <span class="ci-number" id="ci-num">5</span>
+    <span class="ci-feeling" id="ci-feel"></span>
+  </div>
+  <div class="slider-wrap">
+    <div class="slider-track">
+      <div class="slider-fill" id="sl-fill"></div>
+      <input type="range" min="1" max="10" value="5" id="sl" oninput="onSlider(this.value)">
+    </div>
+    <div class="slider-labels">
+      <span>1 · steady</span>
+      <span>10 · overwhelmed</span>
+    </div>
+  </div>
+  <button class="ci-submit" onclick="handleCheckin()">That feels about right</button>
+</section>
+
+<!-- HIGH (7-10) -->
+<section id="screen-high" class="screen">
+  <div class="action-card fade">
+    <span class="action-emoji" id="h-emoji"></span>
+    <h2 class="action-title" id="h-title"></h2>
+    <p class="action-body" id="h-body"></p>
+    <button class="action-done" onclick="navTo('checkin')">Done</button>
+    <button class="action-another" onclick="nextAction()">Give me a different one</button>
+  </div>
+  <button class="high-back-btn" onclick="navTo('checkin')">← back to check-in</button>
+</section>
+
+<!-- MID (4-6) -->
+<section id="screen-mid" class="screen response-layout">
+  <button class="back-link" onclick="navTo('checkin')">← back</button>
+  <p class="response-italic">when it's in the middle</p>
+  <h2 class="response-heading">What would help right now?</h2>
+  <div class="option-cards fade">
+    <div class="option-card" onclick="navTo('braindump')">
+      <span class="option-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </span>
+      <h3>Brain dump</h3>
+      <p>Write whatever is in your head. No structure, no judgment.</p>
+    </div>
+    <div class="option-card" onclick="navTo('reframe')">
+      <span class="option-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </span>
+      <h3>Reframe with AI</h3>
+      <p>Share what's on your mind. Get a gentler way to look at it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BRAIN DUMP -->
+<section id="screen-braindump" class="screen">
+  <button class="back-link" onclick="goBack()">← back</button>
+  <div class="dump-card fade">
+    <span class="dump-label">brain dump</span>
+    <textarea class="dump-area" id="dump-text" placeholder="Whatever's in your head right now. It doesn't have to make sense."></textarea>
+    <div class="dump-footer">
+      <span class="dump-hint">nothing here is saved or scored.</span>
+      <button class="dump-clear" onclick="document.getElementById('dump-text').value=''">clear</button>
+    </div>
+  </div>
+</section>
+
+<!-- REFRAME -->
+<section id="screen-reframe" class="screen">
+  <button class="back-link" onclick="goBack()">← back</button>
+  <p class="response-italic" style="align-self:flex-start;max-width:700px;width:100%;">a softer angle</p>
+  <h2 class="response-heading" style="max-width:700px;width:100%;margin-bottom:36px;">What's on your mind?</h2>
+  <div class="reframe-card fade">
+    <span class="reframe-label">write it out</span>
+    <textarea class="reframe-area" id="rf-input" placeholder="What's weighing on you right now? You don't need to explain it well."></textarea>
+    <button class="reframe-btn" id="rf-btn" onclick="doReframe()">
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Help me look at this differently
+    </button>
+    <div class="reframe-loading" id="rf-loading">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="dots-label">sitting with that…</span>
+    </div>
+    <div class="reframe-response" id="rf-response">
+      <span class="reframe-response-eyebrow">a gentle reframe</span>
+      <p class="reframe-response-text" id="rf-text"></p>
+      <button class="reframe-again" onclick="clearReframe()">try with different words</button>
+    </div>
+  </div>
+</section>
+
+<!-- LOW (1-3) -->
+<section id="screen-low" class="screen response-layout">
+  <button class="back-link" onclick="navTo('checkin')">← back</button>
+  <p class="response-italic">you don't have to do anything.</p>
+  <h2 class="response-heading">Let's shrink the next step.</h2>
+  <div class="option-cards fade">
+    <div class="option-card" onclick="navTo('tasks')">
+      <span class="option-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </span>
+      <h3>Plan next steps</h3>
+      <p>Park everything in Today, Soon, or Later. No deadlines.</p>
+    </div>
+    <div class="option-card" onclick="openBreathe()">
+      <span class="option-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+      </span>
+      <h3>Breathe with me</h3>
+      <p>No counting. Follow the circle. Stop anytime.</p>
+    </div>
+  </div>
+  <div class="reflection-card">
+    <span class="reflection-meta">optional · a small reflection</span>
+    <textarea class="reflection-area" placeholder="Only if it helps. Otherwise, it's okay to close this."></textarea>
+  </div>
+</section>
+
+<!-- TASKS -->
+<section id="screen-tasks" class="screen">
+  <button class="back-link" onclick="goBack()">← back</button>
+  <div class="tasks-card fade">
+    <span class="tasks-eyebrow">task buffer</span>
+    <h2 class="tasks-heading">Park everything here.</h2>
+    <span class="bucket-label">today</span>
+    <div class="task-input-row">
+      <input class="task-input" id="in-today" type="text" placeholder="One thing, if anything" onkeydown="addTask(event,'today')">
+      <button class="task-add-btn" onclick="addTaskBtn('today')">+</button>
+    </div>
+    <ul class="task-list" id="list-today"></ul>
+    <div class="task-divider"></div>
+    <span class="bucket-label">soon</span>
+    <div class="task-input-row">
+      <input class="task-input" id="in-soon" type="text" placeholder="Can wait a day or two" onkeydown="addTask(event,'soon')">
+      <button class="task-add-btn" onclick="addTaskBtn('soon')">+</button>
+    </div>
+    <ul class="task-list" id="list-soon"></ul>
+    <div class="task-divider"></div>
+    <span class="bucket-label">later</span>
+    <div class="task-input-row">
+      <input class="task-input" id="in-later" type="text" placeholder="Whenever" onkeydown="addTask(event,'later')">
+      <button class="task-add-btn" onclick="addTaskBtn('later')">+</button>
+    </div>
+    <ul class="task-list" id="list-later"></ul>
+    <p class="tasks-note">No deadlines. Just somewhere to put things so your head is quieter.</p>
+  </div>
+</section>
+
+</div><!-- .app -->
+
+<!-- BREATHE MODAL -->
+<div class="modal-overlay" id="breathe-modal">
+  <button class="modal-close" onclick="closeBreathe()">×</button>
+  <div class="breathe-outer" id="breathe-outer">
+    <div class="breathe-inner">
+      <span class="breathe-word" id="breathe-word">breathe in</span>
+    </div>
+  </div>
+  <p class="breathe-caption">there's nothing to get right</p>
+</div>
+
+<script>
+// ===== STATE =====
+let userName = '';
+let sliderVal = 5;
+let prevScreen = 'checkin';
+let actionIdx = 0;
+let breatheTimer = null;
+let breathePhaseIdx = 0;
+
+const FEELINGS = {
+  1:'very steady', 2:'settled', 3:'calm',
+  4:'a little tense', 5:'in the middle', 6:'stretched',
+  7:'stressed', 8:'quite a lot', 9:'heavy', 10:'overwhelmed'
+};
+
+const ACTIONS = [
+  { e:'💧', t:'Drink some water',            b:"Just a glass. You don't need to do anything else right now." },
+  { e:'🪟', t:'Look out a window',           b:'Let your eyes rest on something far away for a moment.' },
+  { e:'🧍', t:'Stand up and stretch',        b:'Roll your shoulders or reach your arms up. Nothing more.' },
+  { e:'🌬️', t:'Take three slow breaths',     b:"In through your nose, out through your mouth. That's it." },
+  { e:'💧', t:'Splash water on your face',   b:"A small reset. You don't have to explain why." },
+  { e:'🪑', t:"Change where you're sitting", b:'Just move to a different spot for a few minutes.' },
+];
+
+const BREATHE_PHASES = [
+  { w:'breathe in',  ms:4000 },
+  { w:'hold',        ms:2000 },
+  { w:'breathe out', ms:6000 },
+  { w:'rest',        ms:2000 },
+];
+
+// ===== WELCOME =====
+function nameKeydown(e) { if (e.key === 'Enter') startApp(); }
+
+function startApp(skip = false) {
+  const raw = document.getElementById('name-input').value.trim();
+  userName = (!skip && raw) ? raw : '';
+  document.getElementById('nav-name-display').textContent = userName || '';
+  document.getElementById('main-nav').style.display = 'flex';
+  updateCheckinHeading();
+  showScreen('checkin');
+}
+
+function updateCheckinHeading() {
+  document.getElementById('ci-heading').textContent = userName
+    ? `How are you feeling, ${userName}?`
+    : 'How are you feeling?';
+}
+
+// ===== SLIDER =====
+function onSlider(v) {
+  sliderVal = +v;
+  document.getElementById('ci-num').textContent = v;
+  document.getElementById('ci-feel').textContent = (FEELINGS[v] || '').toUpperCase();
+  document.getElementById('sl-fill').style.width = ((v - 1) / 9 * 100) + '%';
+  const el = document.getElementById('ci-num');
+  el.style.color = v >= 7 ? '#9e7a5e' : v >= 4 ? '#7a8f80' : 'var(--sage)';
+}
+onSlider(5);
+
+// ===== NAV =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + id);
+  if (el) {
+    el.classList.add('active');
+    el.querySelectorAll('.fade').forEach(f => { f.style.animation = 'none'; f.offsetHeight; f.style.animation = ''; });
+  }
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.querySelector(`[data-nav="${id}"]`);
+  if (tab) tab.classList.add('active');
+}
+
+function navTo(id) {
+  prevScreen = document.querySelector('.screen.active')?.id.replace('screen-', '') || 'checkin';
+  showScreen(id);
+}
+
+function goBack() { showScreen(prevScreen === 'checkin' ? 'checkin' : prevScreen); }
+
+// ===== CHECK-IN =====
+function handleCheckin() {
+  const v = sliderVal;
+  if (v >= 7) { actionIdx = 0; renderAction(); navTo('high'); }
+  else if (v >= 4) navTo('mid');
+  else navTo('low');
+}
+
+// ===== HIGH =====
+function renderAction() {
+  const a = ACTIONS[actionIdx % ACTIONS.length];
+  document.getElementById('h-emoji').textContent = a.e;
+  document.getElementById('h-title').textContent = a.t;
+  document.getElementById('h-body').textContent  = a.b;
+}
+function nextAction() { actionIdx++; renderAction(); }
+
+// ===== BREATHE =====
+function runPhase() {
+  const p = BREATHE_PHASES[breathePhaseIdx % BREATHE_PHASES.length];
+  document.getElementById('breathe-word').textContent = p.w;
+  breatheTimer = setTimeout(() => { breathePhaseIdx++; runPhase(); }, p.ms);
+}
+function openBreathe() {
+  document.getElementById('breathe-modal').classList.add('open');
+  document.getElementById('breathe-outer').classList.add('go');
+  breathePhaseIdx = 0; runPhase();
+}
+function closeBreathe() {
+  document.getElementById('breathe-modal').classList.remove('open');
+  document.getElementById('breathe-outer').classList.remove('go');
+  if (breatheTimer) clearTimeout(breatheTimer);
+}
+
+// ===== AI REFRAME =====
+// Uses Pollinations AI — completely free, no account, no API key, works from any static host
+async function doReframe() {
+  const txt = document.getElementById('rf-input').value.trim();
+  if (!txt) return;
+
+  const btn     = document.getElementById('rf-btn');
+  const loading = document.getElementById('rf-loading');
+  const resp    = document.getElementById('rf-response');
+
+  btn.disabled = true;
+  loading.classList.add('visible');
+  resp.classList.remove('visible');
+
+  const system = `You are a neutral, grounded assistant. When someone shares what's on their mind, do two things only:
+1. Rephrase what they said in plain, calm language — no drama, no romanticising, just a clearer and slightly more neutral version of their words.
+2. If their message is vague or unclear, ask one simple follow-up question to understand better.
+
+Rules:
+- Never dramatise or over-validate. Don't say things like "that sounds really hard" or "you're so strong".
+- No therapy-speak. No "it sounds like", "I hear you", "that's valid".
+- No advice, no silver linings, no motivational framing.
+- Keep it short: 2-3 sentences maximum.
+- Plain prose only. No lists, no bullet points.`;
+
+  try {
+    const url = 'https://text.pollinations.ai/' + encodeURIComponent(txt)
+      + '?system=' + encodeURIComponent(system)
+      + '&model=openai&private=true';
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('bad response');
+    const out = (await res.text()).trim();
+
+    document.getElementById('rf-text').textContent = out || "Couldn't reach the server just now.";
+    resp.classList.add('visible');
+  } catch (e) {
+    document.getElementById('rf-text').textContent = "Couldn't connect right now. Your thoughts are still valid.";
+    resp.classList.add('visible');
+  } finally {
+    loading.classList.remove('visible');
+    btn.disabled = false;
+  }
+}
+
+function clearReframe() {
+  document.getElementById('rf-input').value = '';
+  document.getElementById('rf-response').classList.remove('visible');
+}
+
+// ===== TASKS =====
+function addTask(e, bucket) { if (e.key === 'Enter') addTaskBtn(bucket); }
+function addTaskBtn(bucket) {
+  const inp = document.getElementById('in-' + bucket);
+  const val = inp.value.trim(); if (!val) return;
+  const list = document.getElementById('list-' + bucket);
+  const li = document.createElement('li'); li.className = 'task-item';
+  const chk = document.createElement('button'); chk.className = 'task-check';
+  const lbl = document.createElement('span'); lbl.className = 'task-lbl'; lbl.textContent = val;
+  chk.onclick = () => { chk.classList.toggle('done'); lbl.classList.toggle('done'); };
+  li.appendChild(chk); li.appendChild(lbl); list.appendChild(li);
+  inp.value = ''; inp.focus();
+}
+</script>
+</body>
+</html>
