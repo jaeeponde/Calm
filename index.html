@@ -719,9 +719,12 @@ Rules: Never dramatise or over-validate. No therapy-speak. No "it sounds like", 
     if (!res.ok) throw new Error('bad response');
     let out = (await res.text()).trim();
 
-    // Strip any Pollinations notice banners from the response
-    out = out.replace(/⚠️.*?(?=\n\n|\n[^⚠]|$)/gs, '').trim();
-    out = out.replace(/IMPORTANT NOTICE[\s\S]*?(?=\n\n|$)/gi, '').trim();
+    // Strip Pollinations banner: it appears before the actual response, separated by a blank line
+    const bannerMarkers = ['pollinations.ai', 'deprecated', 'migrate to'];
+    if (bannerMarkers.some(w => out.includes(w))) {
+      const splitIdx = out.indexOf('\n\n');
+      if (splitIdx !== -1) out = out.slice(splitIdx).trim();
+    }
 
     document.getElementById('rf-text').textContent = out || "Couldn't reach the server just now.";
     resp.classList.add('visible');
