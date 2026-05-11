@@ -711,19 +711,25 @@ async function doReframe() {
 Rules: Never dramatise or over-validate. No therapy-speak. No "it sounds like", "I hear you", "that's valid". No advice, no silver linings, no motivational framing. Keep it short: 2-3 sentences maximum. Plain prose only, no lists.`;
 
   try {
-    // Pollinations OpenAI-compatible endpoint — free, no key, no account
-    const res = await fetch('https://text.pollinations.ai/openai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'openai',
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: txt }
-        ],
-        private: true
-      })
-    });
+    const HF_TOKEN = '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'; // huggingface.co/settings/tokens — free account
+    const res = await fetch(
+      'https://router.huggingface.co/novita/v3/openai/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${HF_TOKEN}`
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct',
+          max_tokens: 200,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: txt }
+          ]
+        })
+      }
+    );
     if (!res.ok) throw new Error('bad response');
     const data = await res.json();
     const out = data.choices?.[0]?.message?.content?.trim();
