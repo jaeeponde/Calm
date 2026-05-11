@@ -705,34 +705,17 @@ async function doReframe() {
   loading.classList.add('visible');
   resp.classList.remove('visible');
 
-  const system = `You are a neutral, grounded assistant. When someone shares what's on their mind, do two things only:
-1. Rephrase what they said in plain, calm language — no drama, no romanticising, just a clearer and slightly more neutral version of their words.
-2. If their message is vague or unclear, ask one simple follow-up question to understand better.
-Rules: Never dramatise or over-validate. No therapy-speak. No "it sounds like", "I hear you", "that's valid". No advice, no silver linings, no motivational framing. Keep it short: 2-3 sentences maximum. Plain prose only, no lists.`;
+  const system = `You are a neutral, grounded assistant. When someone shares what's on their mind, rephrase what they said in plain, calm language — no drama, no romanticising, just a clearer and slightly more neutral version of their words. Rules: Never dramatise or over-validate. No therapy-speak. No "it sounds like", "I hear you", "that's valid". No advice, no silver linings, no motivational framing. Keep it short: 2-3 sentences maximum. Plain prose only, no lists.`;
 
   try {
-    const HF_TOKEN = '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'; // huggingface.co/settings/tokens — free account
-    const res = await fetch(
-      'https://router.huggingface.co/novita/v3/openai/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${HF_TOKEN}`
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-3.1-8b-instruct',
-          max_tokens: 200,
-          messages: [
-            { role: 'system', content: system },
-            { role: 'user', content: txt }
-          ]
-        })
-      }
-    );
+    const prompt = encodeURIComponent(`${system}\n\nUser: ${txt}\n\nReframe:`);
+    const res = await fetch(`https://text.pollinations.ai/${prompt}`, {
+      method: 'GET',
+      headers: { 'Accept': 'text/plain' }
+    });
+
     if (!res.ok) throw new Error('bad response');
-    const data = await res.json();
-    const out = data.choices?.[0]?.message?.content?.trim();
+    const out = (await res.text()).trim();
 
     document.getElementById('rf-text').textContent = out || "Couldn't reach the server just now.";
     resp.classList.add('visible');
@@ -744,12 +727,6 @@ Rules: Never dramatise or over-validate. No therapy-speak. No "it sounds like", 
     btn.disabled = false;
   }
 }
-
-function clearReframe() {
-  document.getElementById('rf-input').value = '';
-  document.getElementById('rf-response').classList.remove('visible');
-}
-
 // ===== TASKS =====
 function addTask(e, bucket) { if (e.key === 'Enter') addTaskBtn(bucket); }
 function addTaskBtn(bucket) {
